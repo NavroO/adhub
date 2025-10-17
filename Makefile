@@ -14,3 +14,8 @@ proto:
 
 lint:
 	golangci-lint run ./...
+
+ci:
+	make build
+	make test
+	make lint
