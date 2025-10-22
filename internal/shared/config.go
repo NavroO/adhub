@@ -7,20 +7,16 @@ import (
 
 type Config struct {
 	Port        string
+	DatabaseURL string
 	CorsOrigins []string
 	LogPayloads bool
 }
 
 func LoadConfig() Config {
-	origins := os.Getenv("CORS_ORIGINS")
-	corsList := []string{"*"}
-	if origins != "" {
-		corsList = strings.Split(origins, ",")
-	}
-
 	return Config{
 		Port:        os.Getenv("PORT"),
-		CorsOrigins: corsList,
+		DatabaseURL: os.Getenv("DATABASE_URL"),
+		CorsOrigins: strings.Split(os.Getenv("CORS_ORIGINS"), ","),
 		LogPayloads: os.Getenv("LOG_PAYLOADS") == "true",
 	}
 }

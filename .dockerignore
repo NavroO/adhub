@@ -1,0 +1,13 @@
+bin/
+*.db
+*.log
+*.out
+
+vendor/
+node_modules/
+
+.git
+.vscode
+.idea
+.DS_Store
+.env

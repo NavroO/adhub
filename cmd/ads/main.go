@@ -20,11 +20,23 @@ func main() {
 	shared.SetupLogger()
 	log.Info().Msg("📦 Logger initialized")
 
-	_ = godotenv.Load()
+	if err := godotenv.Load(); err != nil {
+		log.Warn().Msg("⚠️ .env file not found, using system environment")
+	}
 	cfg := shared.LoadConfig()
 	if cfg.Port == "" {
 		log.Fatal().Msg("❌ PORT is not set in .env")
 	}
+
+	db, err := shared.ConnectDB()
+	if err != nil {
+		log.Fatal().Msgf("cannot connect to db: %v", err)
+	}
+	defer func() {
+		if err := db.Close(); err != nil {
+			log.Error().Err(err).Msg("failed to close database")
+		}
+	}()
 
 	r := chi.NewRouter()
 	r.Use(shared.RequestLogger)
@@ -36,11 +48,17 @@ func main() {
 	}))
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-		status := map[string]string{"status": "ok"}
-		if err := json.NewEncoder(w).Encode(status); err != nil {
-			http.Error(w, "failed to encode response", http.StatusInternalServerError)
+		if err := db.Ping(); err != nil {
+			http.Error(w, "DB not reachable", http.StatusInternalServerError)
+			return
+		}
+
+		if err := json.NewEncoder(w).Encode(map[string]string{"status": "ok"}); err != nil {
+			log.Error().Err(err).Msg("failed to encode health response")
 		}
 	})
+
+	// r.Mount("/ads", handler.Routes())
 
 	srv := &http.Server{
 		Addr:         ":" + cfg.Port,
