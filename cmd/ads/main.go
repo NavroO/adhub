@@ -21,7 +21,7 @@ func main() {
 	shared.SetupLogger()
 	log.Info().Msg("📦 Logger initialized")
 
-	if err := godotenv.Load("cmd/ads/.env"); err != nil {
+	if err := godotenv.Load(".env"); err != nil {
 		log.Warn().Msg("⚠️ .env file not found, using system environment")
 	}
 	cfg := shared.LoadConfig()

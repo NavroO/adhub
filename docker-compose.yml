@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   postgres-ads:
     image: postgres:16
@@ -23,7 +21,7 @@ services:
     container_name: adhub-ads
     ports:
       - "8081:8081"
-    env_file: .env
+    env_file: cmd/ads/.env
     environment:
       DATABASE_URL: postgres://adhub:adhub@postgres-ads:5432/adhub_ads?sslmode=disable
     depends_on:
