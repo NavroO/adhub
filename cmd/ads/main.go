@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/NavroO/adhub/internal/ads"
 	"github.com/NavroO/adhub/internal/shared"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
@@ -20,7 +21,7 @@ func main() {
 	shared.SetupLogger()
 	log.Info().Msg("📦 Logger initialized")
 
-	if err := godotenv.Load(); err != nil {
+	if err := godotenv.Load("cmd/ads/.env"); err != nil {
 		log.Warn().Msg("⚠️ .env file not found, using system environment")
 	}
 	cfg := shared.LoadConfig()
@@ -58,7 +59,11 @@ func main() {
 		}
 	})
 
-	// r.Mount("/ads", handler.Routes())
+	repo := ads.NewRepository(db)
+	svc := ads.NewService(repo)
+	h := ads.NewHandler(svc)
+
+	r.Mount("/ads", h.Routes())
 
 	srv := &http.Server{
 		Addr:         ":" + cfg.Port,

@@ -1,18 +1,18 @@
 version: "3.9"
 
 services:
-  postgres:
+  postgres-ads:
     image: postgres:16
-    container_name: adhub-postgres
+    container_name: adhub-postgres-ads
     restart: always
     environment:
       POSTGRES_USER: adhub
       POSTGRES_PASSWORD: adhub
       POSTGRES_DB: adhub_ads
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata_ads:/var/lib/postgresql/data
     networks:
       - adhub-net
 
@@ -24,8 +24,10 @@ services:
     ports:
       - "8081:8081"
     env_file: .env
+    environment:
+      DATABASE_URL: postgres://adhub:adhub@postgres-ads:5432/adhub_ads?sslmode=disable
     depends_on:
-      - postgres
+      - postgres-ads
     networks:
       - adhub-net
 
@@ -33,4 +35,4 @@ networks:
   adhub-net:
 
 volumes:
-  pgdata:
+  pgdata_ads:
