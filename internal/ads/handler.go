@@ -1,6 +1,7 @@
 package ads
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -19,6 +20,7 @@ func NewHandler(svc Service) *Handler {
 func (h *Handler) Routes() chi.Router {
 	r := chi.NewRouter()
 	r.Get("/", h.List)
+	r.Post("/", h.List)
 	return r
 }
 
@@ -30,4 +32,20 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	shared.RespondJSON(w, http.StatusOK, entries)
+}
+
+func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
+	var req CreateAdRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		shared.RespondError(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	ad, err := h.svc.Create(r.Context(), req)
+	if err != nil {
+		shared.RespondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	shared.RespondJSON(w, http.StatusCreated, ad)
 }
