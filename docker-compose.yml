@@ -14,6 +14,29 @@ services:
     networks:
       - adhub-net
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: adhub-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus
+    networks:
+      - adhub-net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: adhub-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+    networks:
+      - adhub-net
+
   postgres-users:
     image: postgres:16
     container_name: adhub-postgres-users
