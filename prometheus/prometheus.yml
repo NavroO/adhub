@@ -2,7 +2,7 @@ global:
   scrape_interval: 15s
 
 scrape_configs:
-  - job_name: "ads-service"
+  - job_name: "adhub"
+    metrics_path: /metrics
     static_configs:
-      - targets: ["ads:8081"] # Twój serwis Go w sieci Dockera
-        metrics_path: /metrics
+      - targets: ["ads:9091"]

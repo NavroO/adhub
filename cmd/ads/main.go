@@ -14,23 +14,14 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/zerolog/log"
-)
-
-var httpRequests = prometheus.NewCounterVec(
-	prometheus.CounterOpts{
-		Name: "http_requests_total",
-		Help: "Number of HTTP requests received",
-	},
-	[]string{"path", "method"},
 )
 
 func main() {
 	shared.SetupLogger()
 	log.Info().Msg("📦 Logger initialized")
-	prometheus.MustRegister(httpRequests)
+	shared.SetupPrometheus()
 
 	if err := godotenv.Load(".env"); err != nil {
 		log.Warn().Msg("⚠️ .env file not found, using system environment")
@@ -53,7 +44,7 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-			httpRequests.WithLabelValues(req.URL.Path, req.Method).Inc()
+			shared.HttpRequests.WithLabelValues(req.URL.Path, req.Method).Inc()
 			next.ServeHTTP(w, req)
 		})
 	})

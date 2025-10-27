@@ -67,6 +67,21 @@ services:
     networks:
       - adhub-net
 
+  graphql-gateway:
+    build:
+      context: .
+      dockerfile: cmd/graphql-gateway/Dockerfile
+    container_name: adhub-graphql-gateway
+    env_file: cmd/ads/.env
+    ports:
+      - "8083:8083"
+    environment:
+      DATABASE_URL: postgres://adhub:adhub@postgres-ads:5432/adhub_ads?sslmode=disable
+    depends_on:
+      - postgres-ads
+    networks:
+      - adhub-net
+
   auth:
     build:
       context: .
